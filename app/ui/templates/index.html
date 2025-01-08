@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cursos</title>
+    <!-- UIkit CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.16.22/dist/css/uikit.min.css" />
+</head>
+<body>
+<div class="uk-container uk-margin-large-top">
+    <div class="uk-margin">
+        <button class="uk-button uk-button-primary" onclick="location.href='{{ url_for('ui.index') }}'">Cursos</button>
+        <button class="uk-button uk-button-secondary" onclick="location.href='{{ url_for('ui.actividades') }}'">Actividades</button>
+    </div>
+    <h1 class="uk-heading-line uk-text-center"><span>Lista de Cursos</span></h1>
+
+    <!-- Botón para abrir el modal de crear curso -->
+    <button class="uk-button uk-button-primary uk-margin-small-bottom" uk-toggle="target: #modal-crear-curso">
+        Crear Curso
+    </button>
+
+    <!-- Tabla de cursos -->
+    <table class="uk-table uk-table-divider uk-table-hover uk-table-middle">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Título</th>
+            <th>Descripción</th>
+            <th>Capacidad</th>
+            <th>Precio</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for curso in cursos %}
+        <tr>
+            <td>{{ curso.id }}</td>
+            <td>{{ curso.titulo }}</td>
+            <td>{{ curso.descripcion }}</td>
+            <td>{{ curso.capacidad }}</td>
+            <td>${{ curso.precio }}</td>
+            <td>
+                <button class="uk-button uk-button-danger uk-button-small" onclick="confirmarEliminar({{ curso.id }}, '{{ curso.titulo }}')">
+                    Eliminar
+                </button>
+                <button class="uk-button uk-button-default uk-button-small" uk-toggle="target: #modal-editar-curso"
+                        onclick="setCursoEditar({{ curso.id }}, '{{ curso.titulo }}', '{{ curso.descripcion }}', {{ curso.capacidad }}, {{ curso.precio }})">
+                    Editar
+                </button>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Modal para crear un curso -->
+    <div id="modal-crear-curso" uk-modal>
+        <div class="uk-modal-dialog uk-modal-body">
+            <h2 class="uk-modal-title">Crear Curso</h2>
+            <form id="crear-curso-form" action="{{ url_for('api.create_curso') }}" method="POST">
+                <div class="uk-margin">
+                    <label class="uk-form-label" for="titulo">Título</label>
+                    <input class="uk-input" type="text" id="titulo" name="titulo" required>
+                </div>
+                <div class="uk-margin">
+                    <label class="uk-form-label" for="descripcion">Descripción</label>
+                    <textarea class="uk-textarea" id="descripcion" name="descripcion" required></textarea>
+                </div>
+                <div class="uk-margin">
+                    <label class="uk-form-label" for="capacidad">Capacidad</label>
+                    <input class="uk-input" type="number" id="capacidad" name="capacidad" required>
+                </div>
+                <div class="uk-margin">
+                    <label class="uk-form-label" for="precio">Precio</label>
+                    <input class="uk-input" type="number" step="0.01" id="precio" name="precio" required>
+                </div>
+                <button class="uk-button uk-button-primary" type="submit">Guardar</button>
+            </form>
+            <button class="uk-button uk-button-default uk-modal-close" type="button">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- Modal para confirmar eliminación -->
+    <div id="modal-confirmar-eliminar" uk-modal>
+        <div class="uk-modal-dialog uk-modal-body">
+            <h2 class="uk-modal-title">¿Eliminar Curso?</h2>
+            <p id="curso-a-eliminar"></p>
+            <form id="eliminar-curso-form" method="DELETE">
+                <button class="uk-button uk-button-danger" type="submit">Eliminar</button>
+                <button class="uk-button uk-button-default uk-modal-close" type="button">Cancelar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para editar un curso -->
+    <div id="modal-editar-curso" uk-modal>
+        <div class="uk-modal-dialog uk-modal-body">
+            <h2 class="uk-modal-title">Editar Curso</h2>
+            <form id="editar-curso-form">
+                <div class="uk-margin">
+                    <label class="uk-form-label" for="editar-titulo">Título</label>
+                    <input class="uk-input" type="text" id="editar-titulo" name="titulo" required>
+                </div>
+                <div class="uk-margin">
+                    <label class="uk-form-label" for="editar-descripcion">Descripción</label>
+                    <textarea class="uk-textarea" id="editar-descripcion" name="descripcion" required></textarea>
+                </div>
+                <div class="uk-margin">
+                    <label class="uk-form-label" for="editar-capacidad">Capacidad</label>
+                    <input class="uk-input" type="number" id="editar-capacidad" name="capacidad" required>
+                </div>
+                <div class="uk-margin">
+                    <label class="uk-form-label" for="editar-precio">Precio</label>
+                    <input class="uk-input" type="number" step="0.01" id="editar-precio" name="precio" required>
+                </div>
+                <button class="uk-button uk-button-primary" type="button" onclick="updateCurso()">Actualizar</button>
+            </form>
+            <button class="uk-button uk-button-default uk-modal-close" type="button">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- UIkit JS -->
+<script src="https://cdn.jsdelivr.net/npm/uikit@3.16.22/dist/js/uikit.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/uikit@3.16.22/dist/js/uikit-icons.min.js"></script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+<!-- Script para manejar los botones -->
+<script>
+
+</script>
+<script>
+
+</script>
+
+</body>
+</html>

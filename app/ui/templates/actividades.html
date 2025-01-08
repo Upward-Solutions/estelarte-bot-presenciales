@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Actividades por Curso</title>
+  <!-- UIkit CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.16.22/dist/css/uikit.min.css" />
+  <style>
+    /* Personalización del botón Editar en el modal */
+    .uk-button-edit {
+      background-color: #1e87f0; /* Azul UIkit */
+      color: white;
+    }
+    .uk-button-edit:hover {
+      background-color: #0d6efd; /* Azul más intenso al pasar el cursor */
+    }
+    /* Estilo para alinear botones uno al lado del otro */
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+    }
+    /* Remover los markers (bullets) de las listas */
+    #actividades-list {
+      list-style: none;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+<div class="uk-container uk-margin-large-top">
+  <!-- Botonera -->
+  <div class="uk-margin">
+    <button class="uk-button uk-button-secondary" onclick="location.href='{{ url_for('ui.index') }}'">Cursos</button>
+    <button class="uk-button uk-button-primary">Actividades</button>
+  </div>
+
+  <!-- Cards para cada Curso -->
+  <div class="uk-grid-match uk-child-width-1-3@m uk-child-width-1-2@s uk-grid-small" uk-grid id="cursos-container">
+    <!-- Se generará dinámicamente con JavaScript -->
+  </div>
+
+  <!-- Modal Deslizante para Actividades -->
+  <div id="modal-actividades" uk-offcanvas="overlay: true; flip: true">
+    <div class="uk-offcanvas-bar uk-dark">
+      <button class="uk-offcanvas-close" type="button" uk-close></button>
+      <h2 id="modal-curso-titulo">Actividades</h2>
+      <ul id="actividades-list">
+        <!-- Las actividades se generarán dinámicamente -->
+      </ul>
+      <button class="uk-button uk-button-primary uk-margin-small-top" onclick="openCrearActividadModal()">Agregar Actividad</button>
+    </div>
+  </div>
+
+  <!-- Modal para Crear Actividad -->
+  <div id="modal-crear-actividad" uk-modal>
+    <div class="uk-modal-dialog uk-modal-body">
+      <h2 class="uk-modal-title">Crear Actividad</h2>
+      <form id="crear-actividad-form">
+        <div class="uk-margin">
+          <label class="uk-form-label" for="crear-fecha">Fecha</label>
+          <input class="uk-input" type="date" id="crear-fecha" name="fecha" required>
+        </div>
+        <div class="uk-margin">
+          <label class="uk-form-label" for="crear-horario">Horario</label>
+          <input class="uk-input" type="text" id="crear-horario" name="horario" required>
+        </div>
+        <input type="hidden" id="crear-id-curso" name="id_curso">
+        <button class="uk-button uk-button-primary" type="button" onclick="createActividad()">Guardar</button>
+      </form>
+      <button class="uk-button uk-button-default uk-modal-close" type="button">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- UIkit JS -->
+<script src="https://cdn.jsdelivr.net/npm/uikit@3.16.22/dist/js/uikit.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/uikit@3.16.22/dist/js/uikit-icons.min.js"></script>
+
+<script>
+  let cursos = [];
+  let actividades = [];
+  let cursoSeleccionadoId = null;
+
+  // Cargar Cursos y Actividades
+  async function loadCursosYActividades() {
+    const [cursosResponse, actividadesResponse] = await Promise.all([
+      fetch("/api/cursos"),
+      fetch("/api/actividades")
+    ]);
+
+    cursos = await cursosResponse.json();
+    actividades = await actividadesResponse.json();
+
+    renderCursos();
+  }
+
+  // Renderizar las Cards de los Cursos
+  function renderCursos() {
+    const container = document.getElementById("cursos-container");
+    container.innerHTML = ""; // Limpiar las cards
+
+    cursos.forEach(curso => {
+      const card = document.createElement("div");
+      card.innerHTML = `
+                    <div class="uk-card uk-card-default uk-card-hover uk-card-body">
+                        <h3 class="uk-card-title">${curso.titulo}</h3>
+                        <p>${curso.descripcion}</p>
+                        <p><strong>Capacidad:</strong> ${curso.capacidad}</p>
+                        <p><strong>Precio:</strong> $${curso.precio.toFixed(2)}</p>
+                        <button class="uk-button uk-button-primary" onclick="openActividadesModal(${curso.id}, '${curso.titulo}')">Ver Actividades</button>
+                    </div>
+                `;
+      container.appendChild(card);
+    });
+  }
+
+  // Abrir Modal de Actividades
+  function openActividadesModal(cursoId, cursoTitulo) {
+    cursoSeleccionadoId = cursoId;
+    document.getElementById("modal-curso-titulo").innerText = `Actividades de ${cursoTitulo}`;
+    renderActividades();
+    UIkit.offcanvas("#modal-actividades").show();
+  }
+
+  // Renderizar Actividades en el Modal
+  function renderActividades() {
+    const actividadesList = document.getElementById("actividades-list");
+    actividadesList.innerHTML = ""; // Limpiar lista
+
+    const actividadesCurso = actividades.filter(a => a.id_curso === cursoSeleccionadoId);
+
+    if (actividadesCurso.length === 0) {
+      actividadesList.innerHTML = `<li>No hay actividades para este curso.</li>`;
+      return;
+    }
+
+    actividadesCurso.forEach(actividad => {
+      const item = document.createElement("li");
+      item.innerHTML = `
+                    <div class="uk-card uk-card-default uk-card-body uk-margin-small">
+                        <p><strong>Fecha:</strong> ${actividad.fecha}</p>
+                        <p><strong>Horario:</strong> ${actividad.horario}</p>
+                        <div class="action-buttons">
+                            <button class="uk-button uk-button-edit uk-button-small" onclick="editActividad(${actividad.id}, '${actividad.fecha}', '${actividad.horario}')">Editar</button>
+                            <button class="uk-button uk-button-danger uk-button-small" onclick="deleteActividad(${actividad.id})">Eliminar</button>
+                        </div>
+                    </div>
+                `;
+      actividadesList.appendChild(item);
+    });
+  }
+
+  // Abrir Modal de Creación de Actividad
+  function openCrearActividadModal() {
+    document.getElementById("crear-id-curso").value = cursoSeleccionadoId;
+    UIkit.modal("#modal-crear-actividad").show();
+  }
+
+  // Crear Actividad
+  async function createActividad() {
+    const fecha = document.getElementById("crear-fecha").value;
+    const horario = document.getElementById("crear-horario").value;
+    const idCurso = document.getElementById("crear-id-curso").value;
+
+    try {
+      const response = await fetch("/api/actividades", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fecha, horario, id_curso: idCurso })
+      });
+      if (response.ok) {
+        UIkit.modal("#modal-crear-actividad").hide();
+        loadCursosYActividades();
+      }
+    } catch (error) {
+      console.error("Error al crear actividad:", error);
+    }
+  }
+
+  // Eliminar Actividad
+  async function deleteActividad(id) {
+    try {
+      const response = await fetch(`/api/actividades/${id}`, { method: "DELETE" });
+      if (response.ok) {
+        loadCursosYActividades();
+      }
+    } catch (error) {
+      console.error("Error al eliminar actividad:", error);
+    }
+  }
+
+  // Inicializar la Carga de Datos
+  document.addEventListener("DOMContentLoaded", loadCursosYActividades);
+</script>
+</body>
+</html>
