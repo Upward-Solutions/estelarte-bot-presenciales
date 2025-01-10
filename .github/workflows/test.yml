@@ -39,9 +39,20 @@ jobs:
           source .venv/bin/activate
           pip install -r requirements.txt
 
-      - name: Set up Database Environment
+      - name: Wait for PostgreSQL
         run: |
-          echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/testdb" > .env
+          until pg_isready -h localhost -U postgres -d testdb; do
+            echo "Esperando a que la base de datos esté lista..."
+            sleep 1
+          done
+          echo "Base de datos lista."
+
+      - name: Clean Database (if necessary)
+        run: |
+          psql -h localhost -U postgres -d testdb -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+          echo "Base de datos reiniciada"
+        env:
+          PGPASSWORD: postgres
 
       - name: Run Migrations
         run: |
