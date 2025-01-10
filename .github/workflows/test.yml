@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  test:
+  e2e_test:
     runs-on: ubuntu-latest
 
     services:
@@ -46,6 +46,12 @@ jobs:
             sleep 1
           done
           echo "Base de datos lista."
+
+      - name: Reset Database
+        run: |
+          psql -h localhost -U postgres -d testdb -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+        env:
+          PGPASSWORD: postgres
 
       - name: Set up Database URL
         run: echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/testdb" > .env
