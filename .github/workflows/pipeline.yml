@@ -86,3 +86,10 @@ jobs:
       - name: Copiar archivos al VPS
         run: |
           scp -r -o StrictHostKeyChecking=no ./ root@62.72.8.249:/app
+
+      - name: Iniciar la aplicación en el VPS
+        run: |
+          ssh -o StrictHostKeyChecking=no root@62.72.8.249 "
+            cd /app &&
+            nohup gunicorn -b 0.0.0.0:5000 run:app > app.log 2>&1 &
+          "
