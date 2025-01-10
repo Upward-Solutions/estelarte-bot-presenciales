@@ -1,4 +1,4 @@
-name: Run Flask Tests
+name: CI/CD Workflow
 
 on:
   push:
@@ -68,3 +68,33 @@ jobs:
         run: |
           source .venv/bin/activate
           pytest --disable-warnings
+
+  deploy:
+    needs: e2e_test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Log in to Amazon ECR
+        run: |
+          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <aws_account_id>.dkr.ecr.us-east-1.amazonaws.com
+
+      - name: Build Docker Image
+        run: |
+          docker build -t flask-app:latest .
+
+      - name: Tag Docker Image
+        run: |
+          docker tag flask-app:latest <aws_account_id>.dkr.ecr.us-east-1.amazonaws.com/flask-app:latest
+
+      - name: Push Docker Image to ECR
+        run: |
+          docker push <aws_account_id>.dkr.ecr.us-east-1.amazonaws.com/flask-app:latest
