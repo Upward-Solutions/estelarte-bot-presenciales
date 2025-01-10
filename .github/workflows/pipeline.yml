@@ -83,6 +83,8 @@ jobs:
             exit
           EOF
 
-      - name: Copy project files
+      - name: Copiar archivos al VPS
         run: |
-          scp -o StrictHostKeyChecking=no
+          scp -o StrictHostKeyChecking=no \
+              ./mi-archivo.txt \
+              root@62.72.8.249:/home/root/estelarte/bot-presenciales
