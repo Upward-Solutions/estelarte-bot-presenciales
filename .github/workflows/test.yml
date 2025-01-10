@@ -3,10 +3,7 @@ name: Run Flask Tests
 on:
   push:
     branches:
-      - main
-  pull_request:
-    branches:
-      - main
+      - master
 
 jobs:
   test:
