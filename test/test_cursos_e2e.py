@@ -59,7 +59,7 @@ def test_update_curso(client):
 
     response_get = client.get(f"/api/cursos")
     assert response_put.status_code == 200
-    assert response_put.json["id"] == curso_id
+    assert response_put.data == b'Curso actualizado exitosamente'
     assert response_get.json[0]["descripcion"] == "Descripción actualizada"
 
 
@@ -77,5 +77,5 @@ def test_delete_curso(client):
 
     response_get_after_delete = client.get("/api/cursos")
     assert response_delete.status_code == 200
-    assert response_delete.json["message"] == "Curso eliminado"
+    assert response_delete.data == b"Curso eliminado exitosamente"
     assert len(response_get_after_delete.json) == 0

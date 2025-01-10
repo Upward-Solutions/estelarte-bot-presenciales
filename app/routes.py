@@ -19,7 +19,7 @@ def get_cursos():
 
 @api.route('/cursos', methods=['POST'])
 def create_curso():
-    data = request.json  # Obtener datos de la solicitud
+    data = request.json
     try:
         curso = Curso(
             titulo=data['titulo'],
@@ -29,10 +29,10 @@ def create_curso():
         )
         db.session.add(curso)
         db.session.commit()
-        return jsonify({'id': curso.id}), 201  # Devolver el ID del curso creado con código 201
+        return jsonify({'id': curso.id}), 201
     except Exception as e:
-        db.session.rollback()  # Revertir cambios si hay un error
-        return jsonify({'error': str(e)}), 400  # Devolver un error si algo falla
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 400
 
 
 @api.route("/cursos/<int:id>", methods=["PUT"])
@@ -46,7 +46,7 @@ def update_curso(id):
         curso.precio = data.get("precio", curso.precio)
 
         db.session.commit()
-        return {"message": "Curso actualizado exitosamente"}, 200
+        return "Curso actualizado exitosamente", 200
     except Exception as e:
         db.session.rollback()
         return {"error": str(e)}, 500
@@ -58,13 +58,12 @@ def delete_curso(id):
     try:
         db.session.delete(curso)
         db.session.commit()
-        return {"message": "Curso eliminado exitosamente"}, 200
+        return "Curso eliminado exitosamente", 200
     except Exception as e:
         db.session.rollback()
         return {"error": str(e)}, 500
 
 
-# CRUD Actividades
 @api.route("/actividades", methods=["GET"])
 def get_actividades():
     actividades = Actividad.query.all()
