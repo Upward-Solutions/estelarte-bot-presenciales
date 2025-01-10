@@ -75,6 +75,27 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
+      - name: Create or update RDS database
+        run: |
+          aws rds create-db-instance \
+            --db-instance-identifier bot-presenciales \
+            --db-instance-class db.t2.micro \
+            --engine postgres \
+            --allocated-storage 20 \
+            --master-username bot_user \
+            --master-user-password secure_password \
+            --backup-retention-period 7 \
+            --db-name bot_presenciales \
+            --publicly-accessible
+
+      - name: Wait for RDS to be available
+        run: |
+          aws rds wait db-instance-available --db-instance-identifier bot-presenciales
+
+      - name: Run migrations
+        run: |
+          flask db upgrade
+
       - name: Log in to Amazon ECR
         run: |
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 571621977540.dkr.ecr.us-east-1.amazonaws.com
