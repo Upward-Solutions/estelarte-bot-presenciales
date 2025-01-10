@@ -85,4 +85,4 @@ jobs:
 
       - name: Copiar archivos al VPS
         run: |
-          scp -r -o StrictHostKeyChecking=no ./ root@62.72.8.249:/home/root/estelarte/bot-presenciales
+          scp -r -o StrictHostKeyChecking=no ./ root@62.72.8.249:/app
