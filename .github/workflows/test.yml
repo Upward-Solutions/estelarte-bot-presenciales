@@ -47,12 +47,8 @@ jobs:
           done
           echo "Base de datos lista."
 
-      - name: Clean Database (if necessary)
-        run: |
-          psql -h localhost -U postgres -d testdb -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
-          echo "Base de datos reiniciada"
-        env:
-          PGPASSWORD: postgres
+      - name: Set up Database URL
+        run: echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/testdb" > .env
 
       - name: Run Migrations
         run: |
