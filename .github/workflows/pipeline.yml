@@ -62,7 +62,7 @@ jobs:
           pytest --disable-warnings
 
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: e2e_test
 
     steps:
@@ -76,7 +76,7 @@ jobs:
 
       - name: Deploy application to VPS
         run: |
-          ssh -o StrictHostKeyChecking=no user@62.72.8.249 << 'EOF'
+          ssh -o StrictHostKeyChecking=no root@62.72.8.249 << 'EOF'
             mkdir -p ~/app && cd ~/app
             docker-compose down || true
             rm -rf *
