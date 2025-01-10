@@ -85,8 +85,8 @@ jobs:
 
       - name: Tag Docker Image
         run: |
-          docker tag flask-app:latest 571621977540.dkr.ecr.us-east-1.amazonaws.com/flask-app:latest
+          docker tag flask-app:latest 571621977540.dkr.ecr.us-east-1.amazonaws.com/upward/proyectos:latest
 
       - name: Push Docker Image to ECR
         run: |
-          docker push 571621977540.dkr.ecr.us-east-1.amazonaws.com/flask-app:latest
+          docker push 571621977540.dkr.ecr.us-east-1.amazonaws.com/upward/proyectos:latest
