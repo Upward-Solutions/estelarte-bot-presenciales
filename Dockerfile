@@ -29,4 +29,4 @@ ENV FLASK_ENV=production
 EXPOSE 5000
 
 # Comando para iniciar la aplicación con Gunicorn
-CMD ["sh", "-c", "flask db upgrade && gunicorn -b 0.0.0.0:5000 run:app"]
+CMD ["sh", "-c", "flask db upgrade --verbose && gunicorn -b 0.0.0.0:5000 run:app"]
