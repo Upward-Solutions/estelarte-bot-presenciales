@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from sqlalchemy import text
 import logging
 
 db = SQLAlchemy()
@@ -11,8 +12,8 @@ def init_app(app):
 
     with app.app_context():
         try:
-            # Prueba de conexión a la base de datos
-            result = db.session.execute("SELECT 1").fetchone()
+            # Ejecutar una consulta simple con text() para verificar conexión
+            result = db.session.execute(text("SELECT 1")).fetchone()
             logging.info("✅ Conexión exitosa a la base de datos.")
             print("✅ Conexión exitosa a la base de datos.")
         except Exception as e:
